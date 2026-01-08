@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "829907800848",
+    "project_id": "sureride-fbff8",
+    "storage_bucket": "sureride-fbff8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:829907800848:android:3bbc2ad7d9ad71fa88cb95",
+        "android_client_info": {
+          "package_name": "com.example.driverapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDghbSJA5oCRtFWvVn1ZzIllOvCmw5StV0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:829907800848:android:63f246f1ac55ab2a88cb95",
+        "android_client_info": {
+          "package_name": "com.example.sureride"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDghbSJA5oCRtFWvVn1ZzIllOvCmw5StV0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
