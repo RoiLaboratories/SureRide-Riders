@@ -5,6 +5,7 @@ import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/auth/login.dart';
 import 'screens/auth/signup.dart';
 import 'screens/welcome.dart';
+import 'screens/auth/otp_verification.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -31,10 +32,12 @@ class MyApp extends StatelessWidget {
       title: "Sure-Ride",
       initialRoute: '/splash',
       routes: {
+        '/splash': (context) => const SplashScreen(),
         '/onboarding': (context) => const OnboardingScreen(),
         '/welcome': (context) => const WelcomeScreen(),
         '/signup': (context) => SignUpScreen(),
         '/login': (context) => LoginScreen(),
+        '/otp': (context) => const OTPScreen(phoneNumber: '', verificationId: '' ),
       },
       home: const SplashScreen(),
     );

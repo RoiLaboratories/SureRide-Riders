@@ -17,11 +17,12 @@ class WelcomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 24),
                 // --- WELCOME TEXT ---
                 Text(
                   "Welcome",
                   style: GoogleFonts.poppins(
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
@@ -30,7 +31,7 @@ class WelcomeScreen extends StatelessWidget {
                 Text(
                   "Sign up or log in to continue",
                   style: GoogleFonts.poppins(
-                    fontSize: 16,
+                    fontSize: 20,
                     fontWeight: FontWeight.normal,
                     color: Colors.grey.shade700,
                   ),
@@ -48,7 +49,7 @@ class WelcomeScreen extends StatelessWidget {
                       child: CircleAvatar(
                         radius: screenHeight * 0.3, // 🔥 BIG
                         backgroundImage: const AssetImage(
-                          'assets/images/page1.png',
+                          'images/page1.png',
                         ),
                         backgroundColor: Colors.transparent,
                       ),
