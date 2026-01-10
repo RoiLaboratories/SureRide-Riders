@@ -1,52 +1,82 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:firebase_auth/firebase_auth.dart' as _firebaseAuth;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Riverpod provider
 final authProvider = ChangeNotifierProvider<AuthProvider>((ref) {
   return AuthProvider();
 });
 
 class AuthProvider extends ChangeNotifier {
-  final _firebaseAuth.FirebaseAuth _auth = _firebaseAuth.FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  String? verificationId;
+  String? _verificationId;
+  ConfirmationResult? _webConfirmationResult;
   bool isLoading = false;
 
-  /// Send verification code to phone
+  User? get currentUser => _auth.currentUser;
+
+  /// Generate a temporary username based on phone number
+  String _generateTemporaryUsername(String phoneNumber) {
+    // Remove non-digit characters
+    final digits = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+    
+    // Take last 6 digits for username
+    final lastDigits = digits.length >= 6 ? digits.substring(digits.length - 6) : digits;
+    
+    // Generate random 4-digit suffix
+    final randomSuffix = (1000 + DateTime.now().millisecondsSinceEpoch % 9000).toString();
+    
+    return 'user_${lastDigits}_$randomSuffix';
+  }
+
+  /// Send OTP (Android, iOS, Web)
   Future<void> sendVerificationCode({
     required String phoneNumber,
-    required void Function(String verificationId) onCodeSent,
-    required void Function(_firebaseAuth.FirebaseAuthException e) onFailed,
+    required VoidCallback onCodeSent,
+    required void Function(FirebaseAuthException e) onFailed,
   }) async {
     isLoading = true;
     notifyListeners();
 
     try {
-      await _auth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        timeout: const Duration(seconds: 60),
-        verificationCompleted: (_firebaseAuth.PhoneAuthCredential credential) async {
-          // Auto verification (Android only)
-          await _auth.signInWithCredential(credential);
-          isLoading = false;
-          notifyListeners();
-        },
-        verificationFailed: (_firebaseAuth.FirebaseAuthException e) {
-          isLoading = false;
-          notifyListeners();
-          onFailed(e);
-        },
-        codeSent: (String verId, int? resendToken) {
-          verificationId = verId;
-          isLoading = false;
-          notifyListeners();
-          onCodeSent(verId);
-        },
-        codeAutoRetrievalTimeout: (String verId) {
-          verificationId = verId;
-        },
-      );
+      if (kIsWeb) {
+        final confirmationResult =
+          await FirebaseAuth.instance.signInWithPhoneNumber(
+            phoneNumber
+          );
+        _webConfirmationResult = confirmationResult;
+
+        isLoading = false;
+        notifyListeners();
+        onCodeSent();
+      } else {
+        await _auth.verifyPhoneNumber(
+          phoneNumber: phoneNumber,
+          timeout: const Duration(seconds: 60),
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            await _auth.signInWithCredential(credential);
+            await _createOrUpdateUser();
+            isLoading = false;
+            notifyListeners();
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            isLoading = false;
+            notifyListeners();
+            onFailed(e);
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            _verificationId = verificationId;
+            isLoading = false;
+            notifyListeners();
+            onCodeSent();
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            _verificationId = verificationId;
+          },
+        );
+      }
     } catch (e) {
       isLoading = false;
       notifyListeners();
@@ -54,22 +84,136 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Verify OTP
-  Future<_firebaseAuth.UserCredential> verifyOTP(String smsCode) async {
-    if (verificationId == null) {
-      throw Exception("Verification ID is null");
+  /// Verify OTP (Android, iOS, Web)
+  Future<UserCredential> verifyOTP(String smsCode) async {
+    UserCredential userCredential;
+    
+    if (kIsWeb) {
+      if (_webConfirmationResult == null) {
+        throw Exception("No web confirmation result found");
+      }
+      userCredential = await _webConfirmationResult!.confirm(smsCode);
+    } else {
+      if (_verificationId == null) {
+        throw Exception("No verification ID found");
+      }
+
+      final credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId!,
+        smsCode: smsCode,
+      );
+
+      userCredential = await _auth.signInWithCredential(credential);
     }
 
-    final credential = _firebaseAuth.PhoneAuthProvider.credential(
-      verificationId: verificationId!,
-      smsCode: smsCode,
-    );
-
-    return await _auth.signInWithCredential(credential);
+    await _createOrUpdateUser();
+    
+    return userCredential;
   }
 
-  /// Current user
-  _firebaseAuth.User? get currentUser => _auth.currentUser;
+ 
+
+
+  /// Create or update user in Firestore with temporary data
+  Future<void> _createOrUpdateUser() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final phoneNumber = user.phoneNumber ?? '';
+    final temporaryUsername = _generateTemporaryUsername(phoneNumber);
+    
+    final userRef = _firestore.collection('users').doc(user.uid);
+    
+    // Check if user already exists
+    final userDoc = await userRef.get();
+    
+    if (!userDoc.exists) {
+      // New user - create with temporary username
+      await userRef.set({
+        'uid': user.uid,
+        'phoneNumber': phoneNumber,
+        'email': null, 
+        'displayName': null, 
+        'temporaryUsername': temporaryUsername,
+        'username': temporaryUsername, 
+        'photoURL': null, 
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastLoginAt': FieldValue.serverTimestamp(),
+        'isVerified': true,
+        'isProfileComplete': false,
+        'hasAddedEmail': false,
+        'hasCustomUsername': false, 
+      });
+    } else {
+      // Existing user - update last login time
+      await userRef.update({
+        'lastLoginAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  /// Update user profile (can be called later from profile screen)
+  Future<void> updateUserProfile({
+    String? email,
+    String? displayName,
+    String? username,
+    String? photoURL,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('No user logged in');
+
+    final userRef = _firestore.collection('users').doc(user.uid);
+    final updateData = <String, dynamic>{
+      'lastUpdatedAt': FieldValue.serverTimestamp(),
+    };
+
+    // Update email if provided
+    if (email != null && email.isNotEmpty) {
+      updateData['email'] = email;
+      updateData['hasAddedEmail'] = true;
+      
+      // You can also update email in Firebase Auth if needed
+      // await user.updateEmail(email);
+    }
+
+    // Update display name if provided
+    if (displayName != null && displayName.isNotEmpty) {
+      updateData['displayName'] = displayName;
+    }
+
+    // Update username if provided (check if different from temporary)
+    if (username != null && username.isNotEmpty) {
+      updateData['username'] = username;
+      updateData['hasCustomUsername'] = true;
+    }
+
+    // Update photo URL if provided
+    if (photoURL != null && photoURL.isNotEmpty) {
+      updateData['photoURL'] = photoURL;
+    }
+
+    // Check if profile is now complete
+    final userDoc = await userRef.get();
+    final userData = userDoc.data();
+    
+    final hasEmail = email != null || (userData?['email'] != null);
+    final hasDisplayName = displayName != null || (userData?['displayName'] != null);
+    final hasCustomUsername = username != null || (userData?['hasCustomUsername'] == true);
+    
+    updateData['isProfileComplete'] = hasEmail && hasDisplayName && hasCustomUsername;
+
+    await userRef.update(updateData);
+    notifyListeners();
+  }
+
+  /// Get user data from Firestore
+  Future<Map<String, dynamic>?> getUserData() async {
+    final user = _auth.currentUser;
+    if (user == null) return null;
+
+    final userDoc = await _firestore.collection('users').doc(user.uid).get();
+    return userDoc.data();
+  }
 
   /// Sign out
   Future<void> signOut() async {
