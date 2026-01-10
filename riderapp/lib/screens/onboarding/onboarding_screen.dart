@@ -44,6 +44,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            const SizedBox(height: 16),
             /// TOP BAR (DOTS + SKIP)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),

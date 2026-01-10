@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'otp_verification.dart';
 import '../../components/button.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
+import '../../providers/auth_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  SignUpScreenState createState() => SignUpScreenState();
+  ConsumerState<SignUpScreen> createState() => SignUpScreenState();
 }
 
-class SignUpScreenState extends State<SignUpScreen> {
+class SignUpScreenState extends ConsumerState<SignUpScreen> {
+
   final TextEditingController _phoneController = TextEditingController();
   String _selectedCountryCode = '+234';
   //ignore: unused_field
@@ -20,7 +21,6 @@ class SignUpScreenState extends State<SignUpScreen> {
   bool _isPhoneValid = false;
   String _phoneError = '';
   final List<String> _enteredDigits = [];
-  ConfirmationResult? _webConfirmationResult;
 
   final List<Map<String, String>> _countries = [
     {'flag': '🇳🇬', 'code': '+234', 'name': 'Nigeria'},
@@ -69,12 +69,12 @@ class SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  // Format phone number as 2 4 4
+  // Format phone number as 3 3 4
   String _formatPhoneNumber(List<String> digits) {
     String result = '';
     for (int i = 0; i < digits.length; i++) {
       result += digits[i];
-      if (i == 1 || i == 5) result += ' ';
+      if (i == 2 || i == 5) result += ' ';
     }
     return result;
   }
@@ -106,7 +106,7 @@ class SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
-void _navigateToOTPScreen() async {
+  void _navigateToOTPScreen() async {
   final String fullPhoneNumber = '$_selectedCountryCode${_enteredDigits.join()}';
 
   showDialog(
@@ -116,59 +116,29 @@ void _navigateToOTPScreen() async {
   );
 
   try {
-    // ============================
-    // 🌐 WEB
-    // ============================
-    if (kIsWeb) {
-      final confirmationResult =
-      await FirebaseAuth.instance.signInWithPhoneNumber(
-        fullPhoneNumber
-      );
-      _webConfirmationResult = confirmationResult;
-    
-      Navigator.pop(context);
+    final auth = ref.read(authProvider);
+    await auth.sendVerificationCode(
+      phoneNumber: fullPhoneNumber,
+      onCodeSent: () {
+        Navigator.pop(context);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OTPScreen(
-            phoneNumber: fullPhoneNumber,
-            verificationId: _webConfirmationResult!.verificationId,
-            webConfirmationResult: _webConfirmationResult,
-          ),
-        ),
-      );
-    }
-
-    // ============================
-    // 📱 ANDROID / IOS
-    // ============================
-    else {
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: fullPhoneNumber,
-        timeout: const Duration(seconds: 60),
-        verificationCompleted: (PhoneAuthCredential credential) {},
-        verificationFailed: (FirebaseAuthException e) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to send OTP: ${e.message}')),
-          );
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OTPScreen(
-                phoneNumber: fullPhoneNumber,
-                verificationId: verificationId,
-              ),
+        // Navigate to OTP screen AFTER codeSent
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (ctx) => OTPScreen(
+              phoneNumber: fullPhoneNumber, verificationId: '',
             ),
-          );
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {},
-      );
-    }
+          ),
+        );
+      },
+      onFailed: (e) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to send OTP: ${e.message}')),
+        );
+      },
+    );
   } catch (e) {
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -213,12 +183,12 @@ void _navigateToOTPScreen() async {
                  child: Text(
                   'We will send a verification code via SMS',
                   style: GoogleFonts.poppins(
-                    fontSize: 20,
+                    fontSize: 16,
                     color: Colors.grey[600],
                   ),
                 ),
               ),
-             const SizedBox(height: 30),
+             const SizedBox(height: 40),
 
               // Phone input row
               Row(
@@ -301,14 +271,17 @@ void _navigateToOTPScreen() async {
                 ],
               ),
 
-              if (_phoneError.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    _phoneError,
-                    style: GoogleFonts.poppins(fontSize: 12, color: Colors.red),
-                  ),
-                ),
+             if (_phoneError.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8.0,
+                        left: 12 + 48 + 12 + 16,
+                      ),
+                      child: Text(
+                        _phoneError,
+                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.red),
+                      ),
+                    ),
 
               const SizedBox(height: 32),
 

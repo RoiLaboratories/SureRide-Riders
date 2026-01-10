@@ -61,7 +61,7 @@ class OnboardingPage extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
 
           /// SUBTITLE
           Text(

@@ -49,7 +49,7 @@ class WelcomeScreen extends StatelessWidget {
                       child: CircleAvatar(
                         radius: screenHeight * 0.3, // 🔥 BIG
                         backgroundImage: const AssetImage(
-                          'images/page1.png',
+                          'images/welcome.png',
                         ),
                         backgroundColor: Colors.transparent,
                       ),

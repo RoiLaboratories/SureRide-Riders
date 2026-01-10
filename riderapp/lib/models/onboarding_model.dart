@@ -38,7 +38,7 @@ const onboardingPages = [
     subtitle: "Avoid bank network delays when you pay in-app wallet.",
   ),
   OnboardingModel(
-    heroImage: "images/page3.png",
+    heroImage: "images/page3.jpeg",
     titleParts: [
       OnboardingTitlePart.text("Ride more, save"),
       OnboardingTitlePart.image("images/discount.png"),

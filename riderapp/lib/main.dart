@@ -5,6 +5,8 @@ import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/auth/login.dart';
 import 'screens/auth/signup.dart';
 import 'screens/welcome.dart';
+import 'screens/home_screen.dart';
+import 'screens/route_screen.dart';
 import 'screens/auth/otp_verification.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -38,6 +40,8 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => SignUpScreen(),
         '/login': (context) => LoginScreen(),
         '/otp': (context) => const OTPScreen(phoneNumber: '', verificationId: '' ),
+        '/home': (context) => const HomeScreen(),
+        '/route': (context) => const RouteScreen(),
       },
       home: const SplashScreen(),
     );
