@@ -38,14 +38,14 @@ class _SplashScreenState extends State<SplashScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.blue,
-              Colors.lightBlueAccent, 
+              Color.fromARGB(255, 31, 152, 252),
+              Color.fromARGB(255, 135, 213, 250), 
             ],
           ),
         ),
         child: Center(
           child: Image.asset(
-            'assets/images/splash.png',
+            'images/splash.png',
             width: 2000,
             fit: BoxFit.fill,
           ),
