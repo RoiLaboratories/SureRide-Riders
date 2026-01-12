@@ -21,48 +21,56 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      height: 60, // Fixed height to prevent it from being too long
+      height: 70, // Increased height
       decoration: BoxDecoration(
         color: Colors.black,
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(35), // More rounded
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 20,
+            color: Colors.black.withOpacity(0.4),
+            blurRadius: 25,
+            spreadRadius: 0,
             offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          // Home Tab
-          _buildNavItem(
-            index: 0,
-            icon: _selectedIndex == 0 
-                ? Icons.home 
-                : Icons.home_outlined,
-            label: 'Home',
-          ),
-          
-          // Ride Tab
-          _buildNavItem(
-            index: 1,
-            icon: _selectedIndex == 1 
-                ? Icons.directions_car 
-                : Icons.directions_car_outlined,
-            label: 'Ride',
-          ),
-          
-          // Wallet Tab
-          _buildNavItem(
-            index: 2,
-            icon: _selectedIndex == 2 
-                ? Icons.account_balance_wallet 
-                : Icons.account_balance_wallet_outlined,
-            label: 'Wallet',
-          ),
-        ],
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min, // This makes the row only as wide as needed
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Home Tab
+            _buildNavItem(
+              index: 0,
+              icon: _selectedIndex == 0 
+                  ? Icons.home_rounded 
+                  : Icons.home_outlined,
+              label: 'Home',
+            ),
+            
+            const SizedBox(width: 20), // Reduced spacing between icons
+            
+            // Ride Tab
+            _buildNavItem(
+              index: 1,
+              icon: _selectedIndex == 1 
+                  ? Icons.directions_car_rounded 
+                  : Icons.directions_car_outlined,
+              label: 'Ride',
+            ),
+            
+            const SizedBox(width: 20), // Reduced spacing between icons
+            
+            // Wallet Tab
+            _buildNavItem(
+              index: 2,
+              icon: _selectedIndex == 2 
+                  ? Icons.account_balance_wallet_rounded 
+                  : Icons.account_balance_wallet_outlined,
+              label: 'Wallet',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -77,16 +85,17 @@ class _BottomNavBarState extends State<BottomNavBar> {
     return GestureDetector(
       onTap: () => _onItemTapped(index),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), 
         decoration: BoxDecoration(
           color: isSelected ? Colors.blue : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(25),
           boxShadow: isSelected 
               ? [
                   BoxShadow(
-                    color: Colors.blue.withOpacity(0.3),
-                    blurRadius: 10,
+                    color: Colors.blue.withValues(alpha: 0.4),
+                    blurRadius: 15,
                     spreadRadius: 2,
+                    offset: const Offset(0, 3),
                   ),
                 ]
               : null,
@@ -96,16 +105,16 @@ class _BottomNavBarState extends State<BottomNavBar> {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
-              size: 24,
+              color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.8),
+              size: 28, // Increased icon size
             ),
             if (isSelected) ...[
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Text(
                 label,
                 style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),

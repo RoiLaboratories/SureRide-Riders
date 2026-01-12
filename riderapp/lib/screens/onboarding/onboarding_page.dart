@@ -15,17 +15,20 @@ class OnboardingPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           /// HERO IMAGE
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Image.asset(
-              data.heroImage,
-              height: 402,
-              width: 353,
-              fit: BoxFit.fill,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset(
+                data.heroImage,
+                height: 402,
+                width: 353,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
 
