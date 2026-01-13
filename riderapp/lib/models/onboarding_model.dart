@@ -20,7 +20,7 @@ class OnboardingModel {
 
 const onboardingPages = [
   OnboardingModel(
-    heroImage: "images/page1.png",
+    heroImage: "images/page1.jpg",
     titleParts: [
       OnboardingTitlePart.text("Book a ride in"),
       OnboardingTitlePart.image("images/clock.png"),
@@ -29,7 +29,7 @@ const onboardingPages = [
     subtitle: "Safe drivers. Clean cars. Affordable prices.",
   ),
   OnboardingModel(
-    heroImage: "images/page2.png",
+    heroImage: "images/page2.jpg",
     titleParts: [
       OnboardingTitlePart.text("Pay"),
       OnboardingTitlePart.image("images/coin.png"),
