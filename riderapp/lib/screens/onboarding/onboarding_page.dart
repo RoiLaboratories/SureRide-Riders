@@ -12,27 +12,18 @@ class OnboardingPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           /// HERO IMAGE
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Image.asset(
+          SizedBox(
+            width: 353,
+            child: Image.asset(
                 data.heroImage,
-                height: 402,
-                width: 353,
                 fit: BoxFit.cover,
               ),
             ),
-          ),
 
-          const SizedBox(height: 36),
+          const SizedBox(height: 45),
 
           /// TITLE WITH INLINE IMAGE
           RichText(
@@ -43,8 +34,8 @@ class OnboardingPage extends StatelessWidget {
                   return TextSpan(
                     text: part.text,
                     style: GoogleFonts.instrumentSerif(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 36,
+                      fontWeight: FontWeight.normal,
                       color: Colors.black,
                     ),
                   );
@@ -63,8 +54,6 @@ class OnboardingPage extends StatelessWidget {
               }).toList(),
             ),
           ),
-
-          const SizedBox(height: 8),
 
           /// SUBTITLE
           Text(

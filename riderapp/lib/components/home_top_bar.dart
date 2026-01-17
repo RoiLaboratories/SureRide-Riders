@@ -144,7 +144,7 @@ class _HomeTopBarState extends State<HomeTopBar> {
           
           // Location Container
           Flexible(
-            flex: 1,
+            flex: 2,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
@@ -152,7 +152,7 @@ class _HomeTopBarState extends State<HomeTopBar> {
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.5),
+                    color: Colors.black.withValues(alpha: 127),
                     blurRadius: 15,
                     spreadRadius: 1,
                     offset: const Offset(0, 4),

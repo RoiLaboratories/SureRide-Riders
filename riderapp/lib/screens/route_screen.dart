@@ -98,7 +98,6 @@ class _RouteScreenState extends State<RouteScreen> {
     // Use LocationManager to save location
     await LocationManager().addRecentLocation(name, address);
     
-    // No need to update state here - LocationManager will notify listeners
   }
 
  
@@ -155,31 +154,6 @@ class _RouteScreenState extends State<RouteScreen> {
     }
   }
 
-  void _clearRecentLocations() async {
-    try {
-      await LocationManager().clearAllLocations();
-      // No need to call setState - LocationManager will notify listeners
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Recent locations cleared'),
-          backgroundColor: Colors.blue,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (e) {
-      print('Error clearing locations: $e');
-    }
-  }
-
-  void _refreshLocations() {
-    if (mounted) {
-      setState(() {
-        _isLoadingRecents = true;
-      });
-    }
-    _loadRecentLocations();
-  }
 
   @override
   void dispose() {
@@ -218,26 +192,13 @@ class _RouteScreenState extends State<RouteScreen> {
         foregroundColor: Colors.black,
         centerTitle: true,
         title: Text(
-          "Set Destination",
+          "Your Route",
           style: GoogleFonts.poppins(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: Colors.black,
           ),
         ),
-        actions: [
-          if (recentLocations.isNotEmpty && !_isLoadingRecents)
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              onPressed: _clearRecentLocations,
-              tooltip: 'Clear history',
-            ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _refreshLocations,
-            tooltip: 'Refresh',
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -253,7 +214,7 @@ class _RouteScreenState extends State<RouteScreen> {
                 border: Border.all(color: Colors.grey[200]!),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 10),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

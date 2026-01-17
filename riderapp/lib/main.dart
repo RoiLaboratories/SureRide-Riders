@@ -8,6 +8,7 @@ import 'screens/welcome.dart';
 import 'screens/home_screen.dart';
 import 'screens/route_screen.dart';
 import 'screens/ride_screen.dart';
+import 'screens/wallet_screen.dart';
 import 'screens/auth/otp_verification.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -43,7 +44,8 @@ class MyApp extends StatelessWidget {
         '/otp': (context) => const OTPScreen(phoneNumber: '', verificationId: '' ),
         '/home': (context) => const HomeScreen(),
         '/route': (context) => const RouteScreen(),
-        '/ride': (context) => const RideScreen(rideData: {},),
+        '/ride': (context) => const RideScreen(rideData: {}),
+        '/wallet': (context) => WalletScreen(),
       },
       home: const SplashScreen(),
     );
