@@ -2,72 +2,79 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class BottomNavBar extends StatefulWidget {
-  const BottomNavBar({super.key});
+  final Function(int) onTabChanged;
+  final int currentIndex;
+
+  const BottomNavBar({
+    super.key,
+    required this.onTabChanged,
+    required this.currentIndex,
+  });
 
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.currentIndex;
+  }
+
+  @override
+  void didUpdateWidget(covariant BottomNavBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentIndex != oldWidget.currentIndex) {
+      _selectedIndex = widget.currentIndex;
+    }
+  }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (_selectedIndex == index) return;
+    setState(() => _selectedIndex = index);
+    widget.onTabChanged(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      height: 70, // Increased height
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(35), // More rounded
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 25,
-            spreadRadius: 0,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Center(
+    return SafeArea(
+      top: false,
+      child: Container(
+        width: 208,
+        margin: const EdgeInsets.symmetric(horizontal: 60, vertical: 4),
+        height: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2C2F36),
+          borderRadius: BorderRadius.circular(36),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 90),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
         child: Row(
-          mainAxisSize: MainAxisSize.min, // This makes the row only as wide as needed
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // Home Tab
             _buildNavItem(
               index: 0,
-              icon: _selectedIndex == 0 
-                  ? Icons.home_rounded 
-                  : Icons.home_outlined,
               label: 'Home',
+              iconAsset: 'images/home.png',
             ),
-            
-            const SizedBox(width: 20), // Reduced spacing between icons
-            
-            // Ride Tab
             _buildNavItem(
               index: 1,
-              icon: _selectedIndex == 1 
-                  ? Icons.directions_car_rounded 
-                  : Icons.directions_car_outlined,
               label: 'Ride',
+              iconAsset: 'images/ride.png',
             ),
-            
-            const SizedBox(width: 20), // Reduced spacing between icons
-            
-            // Wallet Tab
             _buildNavItem(
               index: 2,
-              icon: _selectedIndex == 2 
-                  ? Icons.account_balance_wallet_rounded 
-                  : Icons.account_balance_wallet_outlined,
               label: 'Wallet',
+              iconAsset: 'images/wallet.png',
             ),
           ],
         ),
@@ -77,25 +84,29 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   Widget _buildNavItem({
     required int index,
-    required IconData icon,
     required String label,
+    required String iconAsset,
   }) {
-    final isSelected = _selectedIndex == index;
-    
+    final bool isSelected = _selectedIndex == index;
+
     return GestureDetector(
       onTap: () => _onItemTapped(index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), 
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 10 : 8,
+          vertical: 4,
+        ),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.transparent,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: isSelected 
+          color: isSelected ? const Color(0xFF0A84FF) : Colors.transparent,
+          borderRadius: BorderRadius.circular(35),
+          boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.blue.withValues(alpha: 0.4),
-                    blurRadius: 15,
-                    spreadRadius: 2,
-                    offset: const Offset(0, 3),
+                    color: const Color(0xFF0A84FF).withValues(alpha: 120),
+                    blurRadius: 4,
                   ),
                 ]
               : null,
@@ -103,18 +114,20 @@ class _BottomNavBarState extends State<BottomNavBar> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.8),
-              size: 28, // Increased icon size
+            Image.asset(
+              iconAsset,
+              height: 50,
+              width: 50,
+              color: isSelected
+                  ? Colors.white
+                  : Colors.white.withValues(alpha: 180),
             ),
             if (isSelected) ...[
-              const SizedBox(width: 10),
               Text(
                 label,
                 style: GoogleFonts.poppins(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),

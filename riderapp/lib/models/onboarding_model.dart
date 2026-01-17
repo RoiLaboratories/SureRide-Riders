@@ -20,7 +20,7 @@ class OnboardingModel {
 
 const onboardingPages = [
   OnboardingModel(
-    heroImage: "images/page1.jpg",
+    heroImage: "images/page1.png",
     titleParts: [
       OnboardingTitlePart.text("Book a ride in"),
       OnboardingTitlePart.image("images/clock.png"),
@@ -29,7 +29,7 @@ const onboardingPages = [
     subtitle: "Safe drivers. Clean cars. Affordable prices.",
   ),
   OnboardingModel(
-    heroImage: "images/page2.jpg",
+    heroImage: "images/page2.png",
     titleParts: [
       OnboardingTitlePart.text("Pay"),
       OnboardingTitlePart.image("images/coin.png"),
@@ -38,7 +38,7 @@ const onboardingPages = [
     subtitle: "Avoid bank network delays when you pay in-app wallet.",
   ),
   OnboardingModel(
-    heroImage: "images/page3.jpeg",
+    heroImage: "images/page3.png",
     titleParts: [
       OnboardingTitlePart.text("Ride more, save"),
       OnboardingTitlePart.image("images/discount.png"),
