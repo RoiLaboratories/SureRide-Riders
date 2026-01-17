@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final MapController _mapController = MapController();
 
   int _currentIndex = 0;
+  bool _locationLoading = false;
 
   final LatLng _currentLocation = const LatLng(6.5244, 3.3792);
 
@@ -31,28 +32,29 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     /// Show location modal AFTER first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((ctx) {
       _showLocationPermissionModal();
     });
   }
 
   // ---------------- LOCATION MODAL ----------------
 
- void _showLocationPermissionModal() {
+  void _showLocationPermissionModal() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      // Very transparent light blue overlay
-      barrierColor: Colors.lightBlue.withAlpha(12),
+      backgroundColor: Colors.transparent, 
+      barrierColor: Colors.lightBlue.withValues(alpha: 12), 
       builder: (context) {
         return Align(
-          alignment: Alignment.bottomCenter,
+          alignment: Alignment.bottomCenter, 
           child: Padding(
             padding: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
             child: LocationPermissionModal(
+              loading: _locationLoading,
+              onAllow: _requestLocationPermission,
               onLater: () => Navigator.pop(context),
             ),
           ),
@@ -62,6 +64,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
+  Future<void> _requestLocationPermission() async {
+    setState(() => _locationLoading = true);
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (mounted) {
+      setState(() => _locationLoading = false);
+      Navigator.pop(context);
+    }
+  }
 
   // ---------------- TAB HANDLING ----------------
 
