@@ -21,9 +21,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final MapController _mapController = MapController();
 
   int _currentIndex = 0;
-  bool _locationLoading = false;
 
-  final LatLng _currentLocation = const LatLng(6.5244, 3.3792); // Lagos default
+  final LatLng _currentLocation = const LatLng(6.5244, 3.3792);
 
   // ---------------- INIT ----------------
 
@@ -39,41 +38,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ---------------- LOCATION MODAL ----------------
 
-void _showLocationPermissionModal() {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent, 
-    barrierColor: Colors.lightBlue.withValues(alpha: 12), 
-    builder: (context) {
-      return Align(
-        alignment: Alignment.bottomCenter, 
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+ void _showLocationPermissionModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      // Very transparent light blue overlay
+      barrierColor: Colors.lightBlue.withAlpha(12),
+      builder: (context) {
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: LocationPermissionModal(
+              onLater: () => Navigator.pop(context),
+            ),
           ),
-          child: LocationPermissionModal(
-            loading: _locationLoading,
-            onAllow: _requestLocationPermission,
-            onLater: () => Navigator.pop(context),
-          ),
-        ),
-      );
-    },
-  );
-}
-
-
-  Future<void> _requestLocationPermission() async {
-    setState(() => _locationLoading = true);
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (mounted) {
-      setState(() => _locationLoading = false);
-      Navigator.pop(context);
-    }
+        );
+      },
+    );
   }
+
+
 
   // ---------------- TAB HANDLING ----------------
 
