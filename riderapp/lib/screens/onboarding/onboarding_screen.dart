@@ -97,7 +97,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ref.read(onboardingIndexProvider.notifier).state = index;
                 },
                 itemBuilder: (ctx, index) =>
-                    OnboardingPage(data: onboardingPages[index]),
+                  OnboardingPage(data: onboardingPages[index]),
               ),
             ),
 
