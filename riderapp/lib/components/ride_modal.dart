@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/location_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class RideModal extends ConsumerStatefulWidget {
-  final String fromLocation; // dynamic from map
-  final String? toLocation;
   final ScrollController scrollController;
 
   const RideModal({
     super.key,
-    required this.fromLocation,
-    this.toLocation,
     required this.scrollController,
   });
 
@@ -20,12 +15,11 @@ class RideModal extends ConsumerStatefulWidget {
 }
 
 class _RideModalState extends ConsumerState<RideModal> {
-  bool _searchExpanded = false;
+  int selectedRide = 0; 
+  int selectedPayment = 0; 
 
   @override
   Widget build(BuildContext context) {
-    final locations = ref.watch(locationProvider);
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
@@ -33,7 +27,7 @@ class _RideModalState extends ConsumerState<RideModal> {
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(51),
+            color: Colors.black.withValues(alpha: 25),
             blurRadius: 20,
             offset: const Offset(0, 5),
           ),
@@ -41,32 +35,31 @@ class _RideModalState extends ConsumerState<RideModal> {
       ),
       child: Column(
         children: [
-          /// Drag handle
           const SizedBox(height: 12),
           _dragHandle(),
           const SizedBox(height: 12),
 
-          /// Modal content scrollable
+          /// MAIN CONTENT
           Expanded(
             child: ListView(
               controller: widget.scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              children: _searchExpanded
-                  ? _buildExpandedContent(locations)
-                  : _buildInitialContent(),
+              children: [
+                _buildRideOptions(),
+                const SizedBox(height: 20),
+                _buildPaymentOptions(),
+              ],
             ),
           ),
 
-          /// Confirm Order button at the bottom inside modal
+          /// CONTINUE BUTTON
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             child: SizedBox(
               width: double.infinity,
-              height: 52,
+              height: 55,
               child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Add your confirm logic
-                },
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
@@ -75,8 +68,9 @@ class _RideModalState extends ConsumerState<RideModal> {
                   elevation: 0,
                 ),
                 child: Text(
-                  'Confirm Order',
+                  'Continue',
                   style: GoogleFonts.poppins(
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -89,151 +83,223 @@ class _RideModalState extends ConsumerState<RideModal> {
     );
   }
 
+  /// DRAG HANDLE
   Widget _dragHandle() => Center(
         child: Container(
           width: 40,
           height: 4,
           decoration: BoxDecoration(
-            color: Colors.grey.withAlpha(153),
+            color: Colors.grey.shade400,
             borderRadius: BorderRadius.circular(10),
           ),
         ),
       );
 
-  List<Widget> _buildInitialContent() => [
-        Center(
-          child: Text(
-            'Select Pick Up Location',
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
+  /// ================= RIDE OPTIONS SECTION =================
+  Widget _buildRideOptions() {
+    return Column(
+      children: [
+        _rideCard(
+          index: 0,
+          title: "Regular",
+          subtitle: "Mid-size Cars",
+          time: "11 mins",
+          seats: "4",
+          price: "₦3,500",
+          oldPrice: "₦4,500",
+          color: Colors.green,
+        ),
+        const SizedBox(height: 12),
+        _rideCard(
+          index: 1,
+          title: "VIP",
+          subtitle: "Modern Car Models",
+          time: "5 mins",
+          seats: "2",
+          price: "₦7,500",
+          oldPrice: "₦9,500",
+          color: Colors.purple,
+        ),
+      ],
+    );
+  }
+
+  Widget _rideCard({
+    required int index,
+    required String title,
+    required String subtitle,
+    required String time,
+    required String seats,
+    required String price,
+    required String oldPrice,
+    required Color color,
+  }) {
+    final isSelected = selectedRide == index;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() => selectedRide = index);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? color : Colors.grey.shade300,
+            width: 2,
           ),
         ),
-        const SizedBox(height: 16),
-
-        // Location + Search Icon
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Row(
           children: [
-            Text(
-              widget.fromLocation,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.normal,
-                color: Colors.grey,
+            // Car image placeholder
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                index == 0
+                 ? 'images/regular.png'
+                 : 'images/vip.png',
+                width: 60,
+                height: 40,
+                fit: BoxFit.contain,
               ),
             ),
-            GestureDetector(
-              onTap: () => setState(() => _searchExpanded = true),
-              child: Image.asset(
-                'images/search_icon.png',
-                width: 24,
-                height: 24,
+
+            const SizedBox(width: 12),
+
+            /// Ride info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: color,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Text("$time • ",
+                          style: const TextStyle(fontSize: 12)),
+                      Icon(Icons.person, size: 14, color: Colors.grey),
+                      Text(" $seats",
+                          style: const TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                ],
               ),
+            ),
+
+            /// Price
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  price,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.blue,
+                  ),
+                ),
+                Text(
+                  oldPrice,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    decoration: TextDecoration.lineThrough,
+                  ),
+                ),
+              ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// ================= PAYMENT OPTIONS SECTION =================
+  Widget _buildPaymentOptions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Payment Options",
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
         const SizedBox(height: 12),
 
-        // Price info
-        Row(
-          children: [
-            Text(
-              'Mid Car -',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            Text(
-              '#3500',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.normal,
-                color: Colors.blue,
-              ),
-            ),
-          ],
+        _paymentTile(
+          index: 0,
+          imagePath: "images/cash.png",
+          title: "Cash",
+          subtitle: "Pay with cash",
         ),
-        const SizedBox(height: 16),
-      ];
 
-  List<Widget> _buildExpandedContent(List locations) {
-    return [
-      // Search Input
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade800,
-          borderRadius: BorderRadius.circular(25),
+        _paymentTile(
+          index: 1,
+          imagePath: "images/wallet2.png",
+          title: "Sureride Wallet",
+          subtitle: "Bal: ₦3,000   + Top up wallet",
         ),
-        child: Row(
-          children: const [
-            Icon(Icons.search, color: Colors.white, size: 22),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Search your pick up location',
-                style: TextStyle(color: Colors.white, fontSize: 14),
-              ),
-            ),
-          ],
+
+        _paymentTile(
+          index: 2,
+          imagePath: "images/card.png",
+          title: "Bank Card",
+          subtitle: "5678-2272-2837-2839   + Add debit card",
         ),
-      ),
-      const SizedBox(height: 16),
+      ],
+    );
+  }
 
-      // From location row (dynamic from map)
-      Row(
-        children: [
-          Image.asset('images/search_icon.png', width: 30, height: 30),
-          const SizedBox(width: 8),
-          Text(
-            widget.fromLocation,
-            style:
-              GoogleFonts.poppins(
-                color: Colors.blue, 
-                fontWeight: FontWeight.bold,
-                fontSize: 30,
-              ),
-          ),
-        ],
+  Widget _paymentTile({
+    required int index,
+    required String imagePath,
+    required String title,
+    required String subtitle,
+  }) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Image.asset(
+        imagePath,
+        width: 28,
+        height: 28,
       ),
-      const SizedBox(height: 16),
-
-      const Text(
-        'Recent Locations',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
       ),
-      const SizedBox(height: 12),
-
-      if (locations.isEmpty)
-        const Center(
-          child: Text(
-            'No recent locations',
-            style: TextStyle(color: Colors.grey),
-          ),
-        )
-      else
-        ...locations.map((location) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.grey.withAlpha(39),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(location['name'] ?? '',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(location['address'] ?? '',
-                    style: const TextStyle(color: Colors.grey, fontSize: 13)),
-              ],
-            ),
-          );
-        }),
-      const SizedBox(height: 20),
-    ];
+      subtitle: Text(
+        subtitle,
+        style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+      ),
+      trailing: Radio<int>(
+        value: index,
+        groupValue: selectedPayment,
+        onChanged: (value) {
+          setState(() => selectedPayment = value!);
+        },
+        activeColor: Colors.blue,
+      ),
+    );
   }
 }
