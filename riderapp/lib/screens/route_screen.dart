@@ -137,7 +137,7 @@ class _RouteScreenState extends State<RouteScreen> {
       Future.delayed(const Duration(milliseconds: 800), () {
         Navigator.pushNamed(
           context, 
-          '/ride',
+          '/bookride',
           arguments: {
             'destination': _destinationController.text,
             'currentLocation': _currentLocationText,

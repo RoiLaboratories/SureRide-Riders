@@ -100,13 +100,13 @@ class _HomeScreenState extends State<HomeScreen> {
             physics: const NeverScrollableScrollPhysics(),
             children: [
               _buildHomeMap(),
-              const RideScreen(rideData: {}),
-              const WalletScreen(),
+              RideScreen(),
+              WalletScreen(),
             ],
           ),
 
           /// TOP BAR
-          if (_currentIndex != 2 && _currentIndex != 1) // hide in Wallet and Ride tabs
+          if (_currentIndex != 2 && _currentIndex != 1) // hide in Wallet
           Positioned(
             top: 50,
             left: 20,
@@ -139,7 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
           /// BOTTOM NAV BAR
-          if (_currentIndex != 1) // hide in Ride tab
           Positioned(
             left: 20,
             right: 20,

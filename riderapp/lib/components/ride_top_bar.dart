@@ -19,7 +19,7 @@ class RideTopBar extends StatelessWidget {
         GestureDetector(
           onTap: () {
             // Navigate back to HomeScreen
-            Navigator.of(context).popUntil((route) => route.isFirst);
+            Navigator.of(context).pop();
           },
           child: Container(
             width: 50,
